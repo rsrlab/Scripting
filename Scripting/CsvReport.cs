@@ -10,58 +10,53 @@ namespace Scripting
 {
 	class CsvReport : BuildInMod.ICsvReport
 	{
-		private System.Windows.Controls.DataGrid _listView;
+		private System.Windows.Controls.ListView _listView;
 
-		private int _colCount;
+		ReportTable _table;
 
-		DataTable _dataTable;
-
-		public CsvReport(System.Windows.Controls.DataGrid listView)
+		public CsvReport(System.Windows.Controls.ListView listView)
 		{
-			_dataTable = new DataTable("report");
+			_table = new ReportTable();
 			_listView = listView;
-			_listView.ItemsSource = _dataTable.DefaultView;
+			_listView.ItemsSource = _table.DefaultView;
 		}
 
 		public void RefreshTable()
 		{
-			_listView.Items.Refresh();
+			_listView.EnsureThread(() =>
+			{
+				_listView.Items.Refresh();
+			});
 		}
 
 		public void ResetReport(int columns)
 		{
 			_listView.EnsureThread(() =>
 			{
-				_dataTable.Rows.Clear();
-				_dataTable.Columns.Clear();
-				_colCount = columns;
+				GridView view = (_listView.View as GridView);
+		
+				_table.InitializeColumns(columns);
 
-				for (int i = 0; i < _colCount; i++)
+				view.Columns.Clear();
+				for (int i = 0; i < columns; i++)
 				{
-					string colName = string.Format("Col{0}", i);
-					DataColumn col = new DataColumn(colName);
-					col.Caption = string.Format("Col {0}", i);
-					col.DataType = typeof(string);
-					col.DefaultValue = string.Empty;
+					GridViewColumn col = new GridViewColumn();
+					col.Header = string.Format("Col {0}", i);
+					col.DisplayMemberBinding = new Binding(string.Format("[{0}]", i));
 
-					_dataTable.Columns.Add(col);
+					view.Columns.Add(col);
 				}
 			});
 		}
 
 		public void WriteValue(int row, int col, object value)
 		{
-			_listView.EnsureThread(() =>
+			lock (_table)
 			{
-				while (row >= _dataTable.Rows.Count)
-				{
-					_dataTable.Rows.Add(new string[_colCount]);
-				}
+				_table.WriteValue(row, col, value);
+			}
 
-				_dataTable.Rows[row][col] = value.ToString();
-
-				RefreshTable();
-			});
+			RefreshTable();
 		}
 
 		public void Dump(string path)
@@ -83,23 +78,10 @@ namespace Scripting
 
 		public void Save(string fileName)
 		{
-			StringBuilder result = new StringBuilder();
-
-			for (int line = 0; line < _dataTable.Rows.Count; line++)
+			lock (_table)
 			{
-				for (int col = 0; col < _dataTable.Columns.Count; col++)
-				{
-					result.Append(_dataTable.Rows[line][col].ToString());
-					if (col < (_dataTable.Columns.Count - 1))
-					{
-						result.Append(";");
-					}
-				}
-
-				result.AppendLine();
+				_table.Save(fileName, Encoding.UTF8);
 			}
-
-			System.IO.File.WriteAllText(fileName, result.ToString());
 		}
 	}
 }

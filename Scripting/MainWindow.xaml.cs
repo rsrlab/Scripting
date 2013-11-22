@@ -80,13 +80,6 @@ namespace Scripting
 
 
 			_helpGen = _ctr.CreateHelp();
-
-			textScript.Text = @"Base.ResetCSV(1)
-for j = 1, 100 do
-	Base.Print (j)
-	Base.WriteCSV(j, 0, j)
-end";
-
 		}
 
 		void Current_Exit(object sender, ExitEventArgs e)

@@ -104,12 +104,18 @@
         </Grid>
 
         <Grid Grid.Row="1" Visibility="Hidden" x:Name="GridProtocol">
-          
-            <DataGrid x:Name="DataOutput" AutoGenerateColumns="True"
-                      ScrollViewer.CanContentScroll="True" 
-                      ScrollViewer.VerticalScrollBarVisibility="Auto" 
-                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                      />
+
+            <ListView x:Name="DataOutput"
+            ScrollViewer.CanContentScroll="True" 
+            ScrollViewer.VerticalScrollBarVisibility="Auto" 
+            ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Width="150"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+           
         </Grid>
 
     </Grid>

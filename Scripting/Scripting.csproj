@@ -82,6 +82,9 @@
     <Compile Include="Execution\RuntimeErrorEventArg.cs" />
     <Compile Include="HelpGenerator.cs" />
     <Compile Include="IMainWindow.cs" />
+    <Compile Include="ReportTable.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="WindowCrossThreadHelper.cs" />
     <Compile Include="WindowErrorMsg.xaml.cs">
       <DependentUpon>WindowErrorMsg.xaml</DependentUpon>
